@@ -1,12 +1,10 @@
 ﻿using System;
 
-public class Doctor:User
+public class Patient : User
 {
 
+	public Patient(int id) : base(id){}
 
-	public Doctor(int id) : base(id)
-    {
-	}
 
     public void ShowMenu()
     {
@@ -22,31 +20,31 @@ public class Doctor:User
             Console.WriteLine("7. Logout");
             Console.WriteLine("8. Exit");
             Console.Write("Select an option: ");
-            var choice = Convert.ToString(Console.ReadKey());
+            char choice = Convert.ToChar(Console.Read());
             switch (choice)
             {
-                case "1":
+                case '1':
                     Console.WriteLine("Listing all doctors...");
                     break;
-                case "2":
+                case '2':
                     Console.WriteLine("checking details out...");
                     break;
-                case "3":
+                case '3':
                     Console.WriteLine("Listing all patients...");
                     break;
-                case "4":
+                case '4':
                     Console.WriteLine("checking detailsout...");
                     return;
-                case "5":
+                case '5':
                     Console.WriteLine("adding doctor");
                     return;
-                case "6":
+                case '6':
                     Console.WriteLine("adding patient");
                     return;
-                case "7":
+                case '7':
                     Console.WriteLine("Logging out");
                     return;
-                case "8":
+                case '8':
                     Console.WriteLine("Exiting");
                     return;
                 default:
@@ -55,4 +53,5 @@ public class Doctor:User
             }
         }
     }
+
 }

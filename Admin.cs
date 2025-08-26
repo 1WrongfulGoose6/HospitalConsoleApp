@@ -1,40 +1,38 @@
 ﻿using System;
+using System.Reflection.Metadata;
 
-public class Doctor:User
+public class Admin : User
 {
+	public Admin(int id) : base(id){}
 
 
-	public Doctor(int id) : base(id)
-    {
-	}
-
-    public void ShowMenu()
-    {
-        while (true)
-        {
-            Console.WriteLine("Please choose an option:");
-            Console.WriteLine("1. List All Doctors");
-            Console.WriteLine("2. Check doctor details");
-            Console.WriteLine("3. List all patients");
-            Console.WriteLine("4. Check patient details");
+	public void ShowMenu()
+	{
+		while (true)
+		{
+			Console.WriteLine("Please choose an option:");
+			Console.WriteLine("1. List All Doctors");
+			Console.WriteLine("2. Check doctor details");
+			Console.WriteLine("3. List all patients");
+			Console.WriteLine("4. Check patient details");
             Console.WriteLine("5. add doctor");
             Console.WriteLine("6. Add patient");
             Console.WriteLine("7. Logout");
             Console.WriteLine("8. Exit");
             Console.Write("Select an option: ");
-            var choice = Convert.ToString(Console.ReadKey());
-            switch (choice)
-            {
-                case "1":
+			var choice = Convert.ToString(Console.ReadKey());
+			switch (choice)
+			{
+				case "1":
                     Console.WriteLine("Listing all doctors...");
-                    break;
-                case "2":
+					break;
+				case "2":
                     Console.WriteLine("checking details out...");
-                    break;
-                case "3":
+					break;
+				case "3":
                     Console.WriteLine("Listing all patients...");
                     break;
-                case "4":
+				case "4":
                     Console.WriteLine("checking detailsout...");
                     return;
                 case "5":
@@ -50,9 +48,9 @@ public class Doctor:User
                     Console.WriteLine("Exiting");
                     return;
                 default:
-                    Console.WriteLine("Invalid choice. Please try again.");
-                    break;
-            }
-        }
+					Console.WriteLine("Invalid choice. Please try again.");
+					break;
+			}
+		}
     }
 }
