@@ -3,13 +3,17 @@
 public class Patient : User
 {
 
-	public Patient(int id) : base(id){}
+	public Patient(int id) : base(id)
+    {
+        ShowMenu();
+    }
 
 
     public void ShowMenu()
     {
         while (true)
         {
+            Header.Show("Patient Menu");
             Console.WriteLine("Please choose an option:");
             Console.WriteLine("1. List All Doctors");
             Console.WriteLine("2. Check doctor details");

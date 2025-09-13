@@ -6,26 +6,32 @@ namespace HospitalConsoleApp
     {
         static void Main(string[] args)
         {
-            Console.WriteLine("Hello, World!");
             Login login = new Login();
+            while (!login.IsAuthenticated)
+            {
+                login.Authenticate();
+            }
             FileStream newFile = new FileStream("Users.txt", FileMode.OpenOrCreate, FileAccess.Read);
             newFile.Close();
             while (true)
             {
-                (var id, var role) = login.Authenticate();
+                // After successful authentication, direct user based on role
+                int id = login.id;
+                char role = login.role;
                 switch(role)
                 {
                     case 'a':
                         Admin admin = new Admin(id);
+                        Header.Show("Admin Menu");
                         admin.ShowMenu();
                         break;
                     case 'd':
                         Doctor doctor = new Doctor(id);
+                        Header.Show("Doctor Menu");
                         doctor.ShowMenu();
                         break;
                     case 'p':
                         Patient patient = new Patient(id);
-                        patient.ShowMenu();
                         break;
                     default:
                         Console.WriteLine("Unknown role. Access denied.");
