@@ -20,9 +20,17 @@ public static class Header
         int rightPadding = width - text.Length - leftPadding;
         return new string(' ', leftPadding) + text + new string(' ', rightPadding);
     }
+    internal static void PrintDoctor(string line)
+    {
+        string[] parts = line.Split('\t');
+        Console.WriteLine($"{"Doctor", -20} | {"Email", -30} | {"Address",-30} | {"Phone",-15}");
+        Console.WriteLine(new string('-', 95));
+        Console.WriteLine($"{parts[2],-20} | {parts[4],-30} | {parts[3],-30} | {parts[5],-15}");
+    }
 
     public static void ResizeWindow(int width, int height)
     {
         Console.SetWindowSize(width, height);
     }
+
 }

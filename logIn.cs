@@ -106,7 +106,7 @@ public class Login
 
         foreach (string line in lines)
         {
-            string[] parts = line.Split(',');
+            string[] parts = line.Split('\t');
             if (parts.Length != 3)
             {
                 Console.WriteLine("Malformed line in credentials file: " + line);
@@ -149,8 +149,4 @@ public class Login
         return sb.ToString();
     }
 
-    internal void AccessUser()
-    {
-        throw new NotImplementedException();
-    }
 }

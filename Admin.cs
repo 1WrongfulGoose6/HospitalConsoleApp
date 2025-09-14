@@ -3,7 +3,7 @@ using System.Reflection.Metadata;
 
 public class Admin : User
 {
-	public Admin(int id) : base(id){}
+	public Admin(int id, char role) : base(id, role) { }
 
 
 	public void ShowMenu()

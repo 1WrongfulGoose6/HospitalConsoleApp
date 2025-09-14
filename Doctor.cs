@@ -4,9 +4,10 @@ public class Doctor:User
 {
 
 
-	public Doctor(int id) : base(id)
+	public Doctor(int id, char role) : base(id, role)
     {
-	}
+        ShowMenu();
+    }
 
     public void ShowMenu()
     {

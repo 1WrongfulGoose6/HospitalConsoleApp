@@ -21,17 +21,17 @@ namespace HospitalConsoleApp
                 switch(role)
                 {
                     case 'a':
-                        Admin admin = new Admin(id);
+                        Admin admin = new Admin(id, role);
                         Header.Show("Admin Menu");
                         admin.ShowMenu();
                         break;
                     case 'd':
-                        Doctor doctor = new Doctor(id);
+                        Doctor doctor = new Doctor(id, role);
                         Header.Show("Doctor Menu");
                         doctor.ShowMenu();
                         break;
                     case 'p':
-                        Patient patient = new Patient(id);
+                        Patient patient = new Patient(id, role);
                         break;
                     default:
                         Console.WriteLine("Unknown role. Access denied.");
