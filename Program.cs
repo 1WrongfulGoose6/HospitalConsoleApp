@@ -4,43 +4,47 @@ namespace HospitalConsoleApp
 {
     internal class Program
     {
+        public static bool programLoop {get; set; } = true;
         static void Main(string[] args)
         {
-            Login login = new Login();
-            while (!login.IsAuthenticated)
-            {
-                login.Authenticate();
-            }
-            FileStream newFile = new FileStream("Users.txt", FileMode.OpenOrCreate, FileAccess.Read);
-            newFile.Close();
             while (true)
             {
-                // After successful authentication, direct user based on role
-                int id = login.id;
-                char role = login.role;
-                switch(role)
+                Login login = new Login();
+                while (!login.IsAuthenticated)
                 {
-                    case 'a':
-                        Admin admin = new Admin(id, role);
-                        Header.Show("Admin Menu");
-                        admin.ShowMenu();
-                        break;
-                    case 'd':
-                        Doctor doctor = new Doctor(id, role);
-                        Header.Show("Doctor Menu");
-                        doctor.ShowMenu();
-                        break;
-                    case 'p':
-                        Patient patient = new Patient(id, role);
-                        break;
-                    default:
-                        Console.WriteLine("Unknown role. Access denied.");
-                        break;
+                    login.Authenticate();
                 }
-
-
+                programLoop = true;
+                FileStream newFile = new FileStream("Users.txt", FileMode.OpenOrCreate, FileAccess.Read);
+                newFile.Close();
+                while (programLoop)
+                {
+                    // After successful authentication, direct user based on role
+                    int id = login.id;
+                    char role = login.role;
+                    switch (role)
+                    {
+                        case 'a':
+                            Admin admin = new Admin(id, role);
+                            admin.ShowMenu();
+                            programLoop = admin.programLoop;
+                            break;
+                        case 'd':
+                            Doctor doctor = new Doctor(id, role);
+                            doctor.ShowMenu();
+                            programLoop = doctor.programLoop;
+                            break;
+                        case 'p':
+                            Patient patient = new Patient(id, role);
+                            patient.ShowMenu();
+                            programLoop = patient.programLoop;
+                            break;
+                        default:
+                            Console.WriteLine("Unknown role. Access denied.");
+                            break;
+                    }
                 }
+            }
         }
-
     }
 }

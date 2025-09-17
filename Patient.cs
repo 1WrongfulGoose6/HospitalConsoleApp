@@ -1,33 +1,45 @@
-﻿using System;
+﻿using HospitalConsoleApp;
+using System;
 using System.ComponentModel.DataAnnotations;
 using System.Data;
+using System.Runtime.CompilerServices;
 
 
 public class Patient : User
 {
     // Patient-specific properties
     private int patientId { get; set; }
-    //private string fullName { get; set; }
-    //private string address { get; set; }
-    //private string email { get; set; }
-    //private string phoneNumber { get; set; }
-    //private string doctorAssigned { get; set; }
+    private int AssignedDoctor { get; set; }
+    private Appointments appointments;
+    public bool programLoop { get; set; } = true;
 
-
+    // Constructor to that acts as a manager
     public Patient(int id, char role) : base(id, role)
     {
         this.patientId = id;
-        ShowMenu();
+        this.AssignedDoctor = GetAssignedDoctor();
+        this.appointments = new Appointments(this.patientId);
     }
+    // Overloaded constructor to initialize from string array
+    public Patient(string[] parts) : base(Convert.ToInt32(parts[1]), Convert.ToChar(parts[0]))
+    {
+        this.patientId = Convert.ToInt32(parts[1]);
+        this.FName = parts[2];
+        this.Address = parts[3];
+        this.Email = parts[4];
+        this.PhoneNumber = Convert.ToInt32(parts[5]);
+        this.AssignedDoctor = parts[6] == "Null" ? -1 : Convert.ToInt32(parts[6]);
+    }
+
 
 
     public void ShowMenu()
     {
-        while (true)
+        while (programLoop)
         {
             Header.Show("Patient Menu");
             Header.ResizeWindow(100, 25);
-            Console.WriteLine($"Welcome to the DOTNET Hospital Management System {fName}");
+            Console.WriteLine($"Welcome to the DOTNET Hospital Management System {FName}");
             Console.WriteLine("Please choose an option:");
             Console.WriteLine("1. List patient details");
             Console.WriteLine("2. List my doctor details");
@@ -40,24 +52,34 @@ public class Patient : User
             switch (choice)
             {
                 case '1':
+                    Header.Show("My Details");
+                    Header.ResizeWindow(50, 25);
+                    Console.WriteLine("\n");
                     ViewDetails();
+                    Console.ReadKey();
                     break;
                 case '2':
+                    Header.Show("My Doctor");
+                    Header.ResizeWindow(100, 25);
+                    Console.WriteLine("\n");
                     ViewDoctor();
+                    Console.ReadKey();
                     break;
                 case '3':
-                    Console.WriteLine("Listing all patients...");
+                    Header.Show("My Appointments");
+                    Header.ResizeWindow(150, 25);
+                    GetAppointments();
+                    Console.ReadKey();
                     break;
                 case '4':
-                    Console.WriteLine("checking detailsout...");
-                    return;
+                    CreateAppointment();
+                    break;
                 case '5':
-                    Console.WriteLine("adding doctor");
-                    return;
+                    programLoop = false; // Exit to login
+                    break;
                 case '6':
                     System.Environment.Exit(0);
                     return;
-
                 default:
                     Console.WriteLine("Invalid choice. Please try again.");
                     break;
@@ -65,31 +87,125 @@ public class Patient : User
         }
     }
 
-    public void ViewDetails()
+    public override void ViewDetails()
     {
-        Header.Show("My Details");
-        Header.ResizeWindow(50, 25);
-
-        Console.WriteLine("\n");
-        Console.WriteLine($"{fName}'s Details:");
+        Console.WriteLine($"{FName}'s Details:");
         Console.WriteLine("\n");
         Console.WriteLine($"Patient ID: {patientId}");
-        Console.WriteLine($"Full Name: {fName}");
+        Console.WriteLine($"Full Name: {FName}");
         Console.WriteLine($"Address: {Address}");
         Console.WriteLine($"Email: {Email}");
         Console.WriteLine($"Phone Number: {PhoneNumber}");
-        Console.WriteLine($"Doctor Assigned: {assignedDoctor}");
-        Console.ReadKey();
     }
-
-    public void ViewDoctor()
+    private void GetAppointments()
     {
-        Header.Show("My Doctor");
-        Header.ResizeWindow(150, 25);
+        if (AssignedDoctor == 0)
+        {
+            AssignDoctor();
+            Console.Clear();
+            Header.Show("My Appointment");
+            Header.ResizeWindow(100, 50);
+        }
+        appointments.List(FName, getFullName(AssignedDoctor));
+    }
+    private void CreateAppointment()
+    {
+        Console.Clear();
+        Header.Show("Book Appointment");
+        Header.ResizeWindow(100, 25);
 
-        Console.WriteLine("\n");
-        Header.PrintDoctor(FindDoctorData(assignedDoctor));
+        if (AssignedDoctor == 0)
+        {
+            AssignDoctor();
+            Console.Clear();
+            Header.Show("Book Appointment");
+            Header.ResizeWindow(100, 50);
+        }
+        Console.WriteLine($"You are booking a new appointment with {AssignedDoctor}\t");
+        Console.WriteLine("Description of the appointment:");
+        Console.ReadLine();
+        string description = Console.ReadLine();
+        if (appointments.Book(this.AssignedDoctor, description))
+        {
+            Console.WriteLine("Appointment booked successfully.");
+        }
+        else
+        {
+            Console.WriteLine("Failed to book appointment. Please Try Again.");
+        }
         Console.ReadKey();
     }
+    // Example of Ovrriding method from base class
+    private void ViewDoctor()
+    {
+        if (AssignedDoctor == 0)
+        {
+            AssignDoctor();
+            Console.Clear();
+            Header.Show("My Doctor");
+            Header.ResizeWindow(100, 50);
+        }
 
+        Header.PrintDoctor();
+        string[] lines = GetUsersFile();
+        foreach (var line in lines)
+        {
+            var parts = line.Split('\t');
+            if (Convert.ToChar(parts[0]) == 'd' && Convert.ToInt32(parts[1]) == AssignedDoctor)
+            {
+                Doctor d = new Doctor(parts);
+                Console.WriteLine(d);
+                break;
+            }
+        }
+    }
+
+    //Prompt whenever patient accesses doctor pages and no doctor assigned
+    private void AssignDoctor()
+    {
+        Console.WriteLine("You are not registered with any doctor! Please choose which doctor you would like to register with");
+        Doctor[] doctors = GetAllDoctors();
+
+        // Print all doctors
+        int index = 1;
+        foreach (Doctor d in doctors)
+        {
+            Console.Write($"{index}.{d}"); 
+            index++;
+        }
+        Console.WriteLine("Please choose a doctor:");
+        Console.ReadLine();
+
+        //Assign doctor to patient
+        int choice = Convert.ToInt32(Console.ReadLine());
+
+
+        Doctor selectedDoctor = doctors[choice - 1];
+        this.AssignedDoctor = selectedDoctor.UserID;
+
+        // Update the user's assigned doctor in the Users.txt file
+        string[] lines = GetUsersFile();
+        for (int i = 0; i < lines.Length; i++)
+        {
+            var parts = lines[i].Split('\t');
+            if (parts[0] == "p" && Convert.ToInt32(parts[1]) == this.patientId)
+            {
+                parts[6] = AssignedDoctor.ToString(); // update doctor
+                lines[i] = string.Join("\t", parts);
+                break;
+            }
+        }
+        File.WriteAllLines("Users.txt", lines);
+    }
+
+    // Example of overriding ToString method from base class
+    public override string ToString()
+    {
+        return $"{FName,-20} | {Email,-30} | {PhoneNumber,-15} | {Address,-30}";
+    }
+
+    public string ToStringWithDoctor()
+    {
+        return $"{FName,-20} | {getFullName(AssignedDoctor),-20} |{Email,-30} | {PhoneNumber,-15} | {Address,-30}";
+    }
 }

@@ -3,13 +3,15 @@ using System.Xml.Linq;
 
 public abstract class User
 {
-    public char Role { get; set; }
+    public char Role { get; private set; }
     public int UserID { get; private set; }
-    public string fName { get; private set; }
-    public int PhoneNumber { get; private set; }
-    public string Email { get; private set; }
-    public string Address { get; private set; }
-    public int assignedDoctor { get; private set; }
+    public string FName { get; set; }
+    public int PhoneNumber { get; set; }
+    public string Email { get; set; }
+    public string Address { get; set; }
+    //public int AssignedDoctor { get; private set; }
+    public int[] AssignedPatient { get; set; }
+    public virtual void ViewDetails() { }
 
 
     public User(int userId, char Role)
@@ -24,6 +26,7 @@ public abstract class User
             Console.WriteLine("Invalid role specified.");
     }
 
+    // Utility Methods 
     private void LoadPatientData()
     {
         string[] lines = Array.Empty<string>();
@@ -44,20 +47,15 @@ public abstract class User
         foreach (var line in File.ReadLines("users.txt"))
         {
             var parts = line.Split('\t');
-            if (Convert.ToChar(parts[0])=='p' && Convert.ToInt32(parts[1]) == this.UserID)
+            if (Convert.ToChar(parts[0]) == 'p' && Convert.ToInt32(parts[1]) == this.UserID)
             {
-                this.fName = parts[2];
+                this.FName = parts[2];
                 this.Address = parts[3];
                 this.Email = parts[4];
                 this.PhoneNumber = Convert.ToInt32(parts[5]);
-                this.assignedDoctor = Convert.ToInt32(parts[6]);
-                Console.WriteLine("Patient data loaded successfully.");
-                break;
             }
         }
     }
-
-
     private void LoadDoctorData()
     {
         string[] lines = Array.Empty<string>();
@@ -80,16 +78,15 @@ public abstract class User
             var parts = line.Split('\t');
             if (Convert.ToChar(parts[0]) == 'd' && Convert.ToInt32(parts[1]) == this.UserID)
             {
-                this.fName = parts[2];
+                this.FName = parts[2];
                 this.Address = parts[3];
                 this.Email = parts[4];
                 this.PhoneNumber = Convert.ToInt32(parts[5]);
-                Console.WriteLine("Doctor data loaded successfully.");
                 break;
             }
         }
     }
-    public string FindDoctorData(int doctorID)
+    protected string[] GetUsersFile()
     {
         string[] lines = Array.Empty<string>();
         try
@@ -104,6 +101,13 @@ public abstract class User
         {
             Console.WriteLine($"File error: {ex.Message}");
         }
+        return lines;
+    }
+
+    //Doctor Getters
+    public string GetDoctor(int doctorID)
+    {
+        string[] lines = GetUsersFile();
 
         foreach (var line in File.ReadLines("users.txt"))
         {
@@ -113,6 +117,114 @@ public abstract class User
                 return line;
             }
         }
-        return "Doctor Not Found";
+        throw new InvalidOperationException("Doctor Not Found");
+    }
+    public int GetAssignedDoctor()
+    {
+        string[] lines = GetUsersFile();
+
+        foreach (var line in File.ReadLines("users.txt"))
+        {
+            var parts = line.Split('\t');
+            if (Convert.ToInt32(parts[1]) == UserID)
+            {
+                return Convert.ToInt32(parts[6]);
+            }
+        }
+        throw new InvalidOperationException("Patient Not Found");
+    }
+    public Doctor[] GetAllDoctors()
+    {
+        string[] lines = GetUsersFile();
+        // Count number of doctors
+        int count = 0;
+        foreach (string line in lines)
+        {
+            var parts = line.Split('\t');
+            if (Convert.ToChar(parts[0]) == 'd')
+            {
+                count++;
+            }
+        }
+        // Populate the doctors array with objects
+        Doctor[] docs = new Doctor[count];
+        int index = 0;
+        foreach (string line in lines)
+        {
+            var parts = line.Split('\t');
+            if (Convert.ToChar(parts[0]) == 'd')
+            {
+                docs[index++] = new Doctor(parts);
+            }
+        }
+        return docs;
+    }
+    public Patient[] GetAllPatients()
+    {
+        string[] lines = GetUsersFile();
+        // Count number of doctors
+        int count = 0;
+        foreach (string line in lines)
+        {
+            var parts = line.Split('\t');
+            if (Convert.ToChar(parts[0]) == 'p')
+            {
+                count++;
+            }
+        }
+        // Populate the doctors array with objects
+        Patient[] p = new Patient[count];
+        int index = 0;
+        foreach (string line in lines)
+        {
+            var parts = line.Split('\t');
+            if (Convert.ToChar(parts[0]) == 'p')
+            {
+                p[index++] = new Patient(parts);
+            }
+        }
+        return p;
+    }
+    public string getFullName(int ID)
+    {
+        string[] lines = GetUsersFile();
+
+        foreach (var line in File.ReadLines("users.txt"))
+        {
+            var parts = line.Split('\t');
+            if (Convert.ToInt32(parts[1]) == ID)
+            {
+                return Convert.ToString(parts[2]);
+            }
+        }
+        throw new InvalidOperationException("User Not Found");
+    }
+    public void SearchPatient(int patientID)
+    {
+        string[] lines = GetUsersFile();
+        foreach (var line in lines)
+        {
+            var parts = line.Split('\t');
+            if (Convert.ToChar(parts[0]) == 'p' && Convert.ToInt32(parts[1]) == patientID)
+            {
+                Patient p = new Patient(parts);
+                Console.WriteLine(p.ToStringWithDoctor());
+            }
+        }
+    }
+    public void SearchDoctor(int doctorID)
+    {
+        string[] lines = GetUsersFile();
+        foreach (var line in lines)
+        {
+            var parts = line.Split('\t');
+            if (Convert.ToChar(parts[0]) == 'd' && Convert.ToInt32(parts[1]) == doctorID)
+            {
+                Doctor p = new Doctor(parts);
+                Console.WriteLine(p);
+            }
+        }
     }
 }
+
+    

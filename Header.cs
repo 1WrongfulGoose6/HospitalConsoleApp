@@ -11,8 +11,32 @@ public static class Header
         Console.WriteLine("|" + CenterText(title, 40) + "|");
         Console.WriteLine("└" + new string('─', 40) + "┘");
     }
+    public static void Appointment()
+    {
+        Console.WriteLine($"{"Doctor", -15} | {"Patient", -20} | {"Description", -30}");
+        Console.WriteLine(new string('-', 70));
+    }
 
-    // Helper method to add padding for centering text
+    //Example of method overloading
+    public static void Appointment(string doctorID, string PatientID, string Description)
+    {
+        Console.WriteLine($"{doctorID,-15} | {PatientID,-20} | {Description,-30}");
+    }
+    public static void ResizeWindow(int width, int height)
+    {
+        Console.SetWindowSize(width, height);
+    }
+    public static void PrintDoctor(string line)
+    {
+        string[] parts = line.Split('\t');
+        Console.WriteLine($"{parts[2],-20} | {parts[4],-30} | {parts[5],-15} | {parts[3],-40}");
+    }
+    public static void PrintDoctor()
+    {
+        Console.WriteLine($"{"Name",-20} | {"Email",-30} | {"Phone",-15} | {"Address",-30}");
+        Console.WriteLine(new string('-', 95));
+    }
+
     private static string CenterText(string text, int width)
     {
         if (text.Length >= width) return text.Substring(0, width);
@@ -20,17 +44,23 @@ public static class Header
         int rightPadding = width - text.Length - leftPadding;
         return new string(' ', leftPadding) + text + new string(' ', rightPadding);
     }
-    internal static void PrintDoctor(string line)
-    {
-        string[] parts = line.Split('\t');
-        Console.WriteLine($"{"Doctor", -20} | {"Email", -30} | {"Address",-30} | {"Phone",-15}");
-        Console.WriteLine(new string('-', 95));
-        Console.WriteLine($"{parts[2],-20} | {parts[4],-30} | {parts[3],-30} | {parts[5],-15}");
-    }
 
-    public static void ResizeWindow(int width, int height)
+
+    public static void PrintPatient()
     {
-        Console.SetWindowSize(width, height);
+        Console.WriteLine($"{"Patient",-20} | {"Email",-30} | {"Phone",-15} | {"Address",-30}");
+        Console.WriteLine(new string('-', 95));
     }
+    public static void PrintPatientWithDoctor()
+    {
+        Console.WriteLine($"{"Patient",-20} | {"Doctor",-20} | {"Email",-30} | {"Phone",-15} | {"Address",-30}");
+        Console.WriteLine(new string('-', 95));
+    }
+    //public static void PrintPatient(string line)
+    //{
+    //    string[] parts = line.Split('\t');
+    //    Console.WriteLine($"{parts[2],-20} | {parts[4],-30} | {parts[5],-15} | {parts[3],-40}");
+    //}
+
 
 }
