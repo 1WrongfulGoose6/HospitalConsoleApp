@@ -36,16 +36,6 @@ public static class Header
         Console.WriteLine($"{"Name",-20} | {"Email",-30} | {"Phone",-15} | {"Address",-30}");
         Console.WriteLine(new string('-', 95));
     }
-
-    private static string CenterText(string text, int width)
-    {
-        if (text.Length >= width) return text.Substring(0, width);
-        int leftPadding = (width - text.Length) / 2;
-        int rightPadding = width - text.Length - leftPadding;
-        return new string(' ', leftPadding) + text + new string(' ', rightPadding);
-    }
-
-
     public static void PrintPatient()
     {
         Console.WriteLine($"{"Patient",-20} | {"Email",-30} | {"Phone",-15} | {"Address",-30}");
@@ -56,11 +46,16 @@ public static class Header
         Console.WriteLine($"{"Patient",-20} | {"Doctor",-20} | {"Email",-30} | {"Phone",-15} | {"Address",-30}");
         Console.WriteLine(new string('-', 95));
     }
+    private static string CenterText(string text, int width)
+    {
+        if (text.Length >= width) return text.Substring(0, width);
+        int leftPadding = (width - text.Length) / 2;
+        int rightPadding = width - text.Length - leftPadding;
+        return new string(' ', leftPadding) + text + new string(' ', rightPadding);
+    }
     //public static void PrintPatient(string line)
     //{
     //    string[] parts = line.Split('\t');
     //    Console.WriteLine($"{parts[2],-20} | {parts[4],-30} | {parts[5],-15} | {parts[3],-40}");
     //}
-
-
 }

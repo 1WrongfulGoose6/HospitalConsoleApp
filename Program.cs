@@ -4,7 +4,7 @@ namespace HospitalConsoleApp
 {
     internal class Program
     {
-        public static bool programLoop {get; set; } = true;
+        public static bool RunLoop {get; set; } = true;
         static void Main(string[] args)
         {
             while (true)
@@ -14,10 +14,10 @@ namespace HospitalConsoleApp
                 {
                     login.Authenticate();
                 }
-                programLoop = true;
+                RunLoop = true;
                 FileStream newFile = new FileStream("Users.txt", FileMode.OpenOrCreate, FileAccess.Read);
                 newFile.Close();
-                while (programLoop)
+                while (RunLoop)
                 {
                     // After successful authentication, direct user based on role
                     int id = login.id;
@@ -27,17 +27,17 @@ namespace HospitalConsoleApp
                         case 'a':
                             Admin admin = new Admin(id, role);
                             admin.ShowMenu();
-                            programLoop = admin.programLoop;
+                            RunLoop = admin.RunLoop;
                             break;
                         case 'd':
                             Doctor doctor = new Doctor(id, role);
                             doctor.ShowMenu();
-                            programLoop = doctor.programLoop;
+                            RunLoop = doctor.RunLoop;
                             break;
                         case 'p':
                             Patient patient = new Patient(id, role);
                             patient.ShowMenu();
-                            programLoop = patient.programLoop;
+                            RunLoop = patient.RunLoop;
                             break;
                         default:
                             Console.WriteLine("Unknown role. Access denied.");

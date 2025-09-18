@@ -3,16 +3,15 @@ using System.Reflection.Metadata;
 
 public class Admin : User
 {
-    public bool programLoop { get; set; } = true;
+    public bool RunLoop { get; set; } = true;
     public Admin(int id, char role) : base(id, role) 
     {
         
     }
 
-
 	public void ShowMenu()
 	{
-		while (programLoop)
+		while (RunLoop)
 		{
             Header.Show("Administrator Menu");
             Header.ResizeWindow(100, 25);
@@ -97,7 +96,7 @@ public class Admin : User
                     Console.ReadKey();
                     break;
                 case '7':
-                    programLoop = false; // Exit to login
+                    RunLoop = false; // Exit to login
                     break;
                 case '8':
                     System.Environment.Exit(0);
@@ -108,7 +107,6 @@ public class Admin : User
 			}
 		}
     }
-
     private void AddPatient()
     {
         string firstName = AddPrompt("First Name");
@@ -122,11 +120,10 @@ public class Admin : User
 
         string address = $"{streetNumber} {street}, {city}, {state}";
         string fullName = $"{firstName} {lastName}";
-        int newId = GetNextUserId();
+        int newId = CreateUserID();
         string line = $"p\t{newId}\t{fullName}\t{address}\t{email}\t{phone}\t0";
         File.AppendAllText("Users.txt", Environment.NewLine + line);
     }
-
     private void AddDoctor()
     {
         string firstName = AddPrompt("First Name");
@@ -140,17 +137,16 @@ public class Admin : User
 
         string address = $"{streetNumber} {street}, {city}, {state}";
         string fullName = $"{firstName} {lastName}";
-        int newId = GetNextUserId();
+        int newId = CreateUserID();
         string line = $"d\t{newId}\t{fullName}\t{address}\t{email}\t{phone}";
         File.AppendAllText("Users.txt", Environment.NewLine + line);
     }
-
     private string AddPrompt(string fieldName)
     {
         Console.Write($"{fieldName}: ");
         return Console.ReadLine();
     }
-    private int GetNextUserId()
+    private int CreateUserID()
     {
         string[] lines = File.ReadAllLines("Users.txt");
         int maxId = 0;

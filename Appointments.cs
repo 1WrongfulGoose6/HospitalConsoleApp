@@ -43,7 +43,6 @@ public class Appointments
 			}
 		}
 	}
-
 	public void ListForDoctor(string doctorName)
 	{
 		Header.Show("My Appointments");
@@ -74,7 +73,6 @@ public class Appointments
 			Console.WriteLine($"PatientID: {parts[0]}, DoctorID: {parts[1]}, Description: {parts[2]}");
 		}
 	}
-
     private string GetPatientNameById(int patientId)
     {
         string[] lines = File.ReadAllLines("Users.txt");
@@ -88,7 +86,6 @@ public class Appointments
         }
         return "Unknown Patient";
     }
-
 	private string[] GetAppointmentsFile()
 
 	{

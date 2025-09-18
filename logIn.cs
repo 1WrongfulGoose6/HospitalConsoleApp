@@ -4,7 +4,6 @@ using System.Text;
 
 public class Login
 {
-
     public bool IsAuthenticated { get; internal set; } // Property to track authentication status
     public int id { get; internal set; } // Property to store user ID
     public char role { get; internal set; } // Property to store user role
@@ -73,7 +72,7 @@ public class Login
                 }
             }
         
-        if(validateCredentials(id, password))
+        if(ValidateCredentials(id, password))
         {
            IsAuthenticated = true;
             Console.WriteLine("\nValid Credentials. Press Any Key to continue.");
@@ -83,9 +82,8 @@ public class Login
         Console.ReadKey();
         return;
     }
-    
     //Search Credentials File for matching ID and Password
-    public bool validateCredentials(string userInput, string pswInput)
+    public bool ValidateCredentials(string userInput, string pswInput)
     {
         //Open Credentials File
         string[] lines;
@@ -121,14 +119,12 @@ public class Login
         }
         return false;
     }
-
-    static string ReadField(string existing)
+    private static string ReadField(string existing)
     {
         Console.SetCursorPosition(3, Console.CursorTop - 2);
         return Console.ReadLine();
     }
-
-    static string ReadPassword(string existing)
+    private static string ReadPassword(string existing)
     {
         Console.SetCursorPosition(10, Console.CursorTop - 1);
         StringBuilder sb = new StringBuilder();

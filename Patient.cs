@@ -11,7 +11,7 @@ public class Patient : User
     private int patientId { get; set; }
     private int AssignedDoctor { get; set; }
     private Appointments appointments;
-    public bool programLoop { get; set; } = true;
+    public bool RunLoop { get; set; } = true;
 
     // Constructor to that acts as a manager
     public Patient(int id, char role) : base(id, role)
@@ -30,12 +30,9 @@ public class Patient : User
         this.PhoneNumber = Convert.ToInt32(parts[5]);
         this.AssignedDoctor = parts[6] == "Null" ? -1 : Convert.ToInt32(parts[6]);
     }
-
-
-
     public void ShowMenu()
     {
-        while (programLoop)
+        while (RunLoop)
         {
             Header.Show("Patient Menu");
             Header.ResizeWindow(100, 25);
@@ -75,7 +72,7 @@ public class Patient : User
                     CreateAppointment();
                     break;
                 case '5':
-                    programLoop = false; // Exit to login
+                    RunLoop = false; // Exit to login
                     break;
                 case '6':
                     System.Environment.Exit(0);
@@ -86,7 +83,14 @@ public class Patient : User
             }
         }
     }
-
+    public override string ToString()
+    {
+        return $"{FName,-20} | {Email,-30} | {PhoneNumber,-15} | {Address,-30}";
+    }
+    public string ToStringWithDoctor()
+    {
+        return $"{FName,-20} | {GetFullName(AssignedDoctor),-20} |{Email,-30} | {PhoneNumber,-15} | {Address,-30}";
+    }
     public override void ViewDetails()
     {
         Console.WriteLine($"{FName}'s Details:");
@@ -97,6 +101,7 @@ public class Patient : User
         Console.WriteLine($"Email: {Email}");
         Console.WriteLine($"Phone Number: {PhoneNumber}");
     }
+    // private methods
     private void GetAppointments()
     {
         if (AssignedDoctor == 0)
@@ -106,7 +111,7 @@ public class Patient : User
             Header.Show("My Appointment");
             Header.ResizeWindow(100, 50);
         }
-        appointments.List(FName, getFullName(AssignedDoctor));
+        appointments.List(FName, GetFullName(AssignedDoctor));
     }
     private void CreateAppointment()
     {
@@ -136,31 +141,6 @@ public class Patient : User
         Console.ReadKey();
     }
     // Example of Ovrriding method from base class
-    private void ViewDoctor()
-    {
-        if (AssignedDoctor == 0)
-        {
-            AssignDoctor();
-            Console.Clear();
-            Header.Show("My Doctor");
-            Header.ResizeWindow(100, 50);
-        }
-
-        Header.PrintDoctor();
-        string[] lines = GetUsersFile();
-        foreach (var line in lines)
-        {
-            var parts = line.Split('\t');
-            if (Convert.ToChar(parts[0]) == 'd' && Convert.ToInt32(parts[1]) == AssignedDoctor)
-            {
-                Doctor d = new Doctor(parts);
-                Console.WriteLine(d);
-                break;
-            }
-        }
-    }
-
-    //Prompt whenever patient accesses doctor pages and no doctor assigned
     private void AssignDoctor()
     {
         Console.WriteLine("You are not registered with any doctor! Please choose which doctor you would like to register with");
@@ -197,15 +177,29 @@ public class Patient : User
         }
         File.WriteAllLines("Users.txt", lines);
     }
-
     // Example of overriding ToString method from base class
-    public override string ToString()
+    private void ViewDoctor()
     {
-        return $"{FName,-20} | {Email,-30} | {PhoneNumber,-15} | {Address,-30}";
-    }
+        if (AssignedDoctor == 0)
+        {
+            AssignDoctor();
+            Console.Clear();
+            Header.Show("My Doctor");
+            Header.ResizeWindow(100, 50);
+        }
 
-    public string ToStringWithDoctor()
-    {
-        return $"{FName,-20} | {getFullName(AssignedDoctor),-20} |{Email,-30} | {PhoneNumber,-15} | {Address,-30}";
+        Header.PrintDoctor();
+        string[] lines = GetUsersFile();
+        foreach (var line in lines)
+        {
+            var parts = line.Split('\t');
+            if (Convert.ToChar(parts[0]) == 'd' && Convert.ToInt32(parts[1]) == AssignedDoctor)
+            {
+                Doctor d = new Doctor(parts);
+                Console.WriteLine(d);
+                break;
+            }
+        }
     }
+    //Prompt whenever patient accesses doctor pages and no doctor assigned
 }

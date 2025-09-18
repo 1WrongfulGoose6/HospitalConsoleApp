@@ -3,10 +3,9 @@ using System.Net.Http.Headers;
 
 public class Doctor:User
 {
-
     private int DoctorId { get; set; }
     private Appointments appointments;
-    public bool programLoop { get; set; } = true;
+    public bool RunLoop { get; set; } = true;
 
     public Doctor(int id, char role) : base(id, role)
     {
@@ -24,7 +23,7 @@ public class Doctor:User
 
     public void ShowMenu()
     {
-        while (programLoop)
+        while (RunLoop)
         {
             Header.Show("Doctor Menu");
             Header.ResizeWindow(100, 25);
@@ -97,7 +96,7 @@ public class Doctor:User
                     Console.ReadKey();
                     break;
                 case '6':
-                    programLoop = false; // Exit to login
+                    RunLoop = false; // Exit to login
                     break;
                 case '7':
                     System.Environment.Exit(0);
@@ -108,11 +107,20 @@ public class Doctor:User
             }
         }
     }
-
+    public override void ViewDetails()
+    {
+        Header.PrintDoctor();
+        Console.WriteLine(ToString());
+    }
+    public override string ToString()
+    {
+        return $"{FName,-20} | {Email,-30} | {PhoneNumber,-15} | {Address,-30}";
+    }
+    // Private methods
     private void GetPatientAppointments(int patientID)
     {
         Appointments a = new Appointments(patientID);
-        a.List(getFullName(patientID), FName);
+        a.List(GetFullName(patientID), FName);
     }
     private void ViewMyPatients()
     {
@@ -131,15 +139,6 @@ public class Doctor:User
     {
         appointments.ListForDoctor(FName);
 
-    }
-    public override void ViewDetails()
-    {
-        Header.PrintDoctor();
-        Console.WriteLine(ToString());
-    }
-    public override string ToString()
-    {
-        return $"{FName,-20} | {Email,-30} | {PhoneNumber,-15} | {Address,-30}";
     }
 
 }

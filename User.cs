@@ -27,65 +27,6 @@ public abstract class User
     }
 
     // Utility Methods 
-    private void LoadPatientData()
-    {
-        string[] lines = Array.Empty<string>();
-
-        try
-        {
-            lines = File.ReadAllLines("Users.txt");
-        }
-        catch (FileNotFoundException)
-        {
-            Console.WriteLine("Users File Missing. Please Replace and Try Again");
-        }
-        catch (IOException ex)
-        {
-            Console.WriteLine($"File error: {ex.Message}");
-        }
-
-        foreach (var line in File.ReadLines("users.txt"))
-        {
-            var parts = line.Split('\t');
-            if (Convert.ToChar(parts[0]) == 'p' && Convert.ToInt32(parts[1]) == this.UserID)
-            {
-                this.FName = parts[2];
-                this.Address = parts[3];
-                this.Email = parts[4];
-                this.PhoneNumber = Convert.ToInt32(parts[5]);
-            }
-        }
-    }
-    private void LoadDoctorData()
-    {
-        string[] lines = Array.Empty<string>();
-
-        try
-        {
-            lines = File.ReadAllLines("Users.txt");
-        }
-        catch (FileNotFoundException)
-        {
-            Console.WriteLine("Users File Missing. Please Replace and Try Again");
-        }
-        catch (IOException ex)
-        {
-            Console.WriteLine($"File error: {ex.Message}");
-        }
-
-        foreach (var line in File.ReadLines("users.txt"))
-        {
-            var parts = line.Split('\t');
-            if (Convert.ToChar(parts[0]) == 'd' && Convert.ToInt32(parts[1]) == this.UserID)
-            {
-                this.FName = parts[2];
-                this.Address = parts[3];
-                this.Email = parts[4];
-                this.PhoneNumber = Convert.ToInt32(parts[5]);
-                break;
-            }
-        }
-    }
     protected string[] GetUsersFile()
     {
         string[] lines = Array.Empty<string>();
@@ -185,7 +126,7 @@ public abstract class User
         }
         return p;
     }
-    public string getFullName(int ID)
+    public string GetFullName(int ID)
     {
         string[] lines = GetUsersFile();
 
@@ -222,6 +163,65 @@ public abstract class User
             {
                 Doctor p = new Doctor(parts);
                 Console.WriteLine(p);
+            }
+        }
+    }
+    private void LoadPatientData()
+    {
+        string[] lines = Array.Empty<string>();
+
+        try
+        {
+            lines = File.ReadAllLines("Users.txt");
+        }
+        catch (FileNotFoundException)
+        {
+            Console.WriteLine("Users File Missing. Please Replace and Try Again");
+        }
+        catch (IOException ex)
+        {
+            Console.WriteLine($"File error: {ex.Message}");
+        }
+
+        foreach (var line in File.ReadLines("users.txt"))
+        {
+            var parts = line.Split('\t');
+            if (Convert.ToChar(parts[0]) == 'p' && Convert.ToInt32(parts[1]) == this.UserID)
+            {
+                this.FName = parts[2];
+                this.Address = parts[3];
+                this.Email = parts[4];
+                this.PhoneNumber = Convert.ToInt32(parts[5]);
+            }
+        }
+    }
+    private void LoadDoctorData()
+    {
+        string[] lines = Array.Empty<string>();
+
+        try
+        {
+            lines = File.ReadAllLines("Users.txt");
+        }
+        catch (FileNotFoundException)
+        {
+            Console.WriteLine("Users File Missing. Please Replace and Try Again");
+        }
+        catch (IOException ex)
+        {
+            Console.WriteLine($"File error: {ex.Message}");
+        }
+
+        foreach (var line in File.ReadLines("users.txt"))
+        {
+            var parts = line.Split('\t');
+            if (Convert.ToChar(parts[0]) == 'd' && Convert.ToInt32(parts[1]) == this.UserID)
+            {
+                this.FName = parts[2];
+                this.Address = parts[3];
+                this.Email = parts[4];
+                this.PhoneNumber = Convert.ToInt32(parts[5]);
+                break;
             }
         }
     }
