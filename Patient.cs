@@ -45,7 +45,7 @@ public class Patient : User
             Console.WriteLine("5. Exit to login");
             Console.WriteLine("6. Exit System");
             Console.Write("Select an option: ");
-            char choice = Convert.ToChar(Console.Read());
+			var choice = Convert.ToChar(Console.Read());
             switch (choice)
             {
                 case '1':
@@ -79,6 +79,7 @@ public class Patient : User
                     return;
                 default:
                     Console.WriteLine("Invalid choice. Please try again.");
+                    Console.ReadKey();
                     break;
             }
         }
@@ -126,21 +127,27 @@ public class Patient : User
             Header.Show("Book Appointment");
             Header.ResizeWindow(100, 50);
         }
-        Console.WriteLine($"You are booking a new appointment with {AssignedDoctor}\t");
+        Console.WriteLine($"You are booking a new appointment with {GetFullName(AssignedDoctor)}\t");
         Console.WriteLine("Description of the appointment:");
         Console.ReadLine();
         string description = Console.ReadLine();
-        if (appointments.Book(this.AssignedDoctor, description))
+        try
         {
-            Console.WriteLine("Appointment booked successfully.");
+            if (appointments.Book(this.AssignedDoctor, description))
+            {
+                Console.WriteLine("Appointment booked successfully.");
+            }
+            else
+            {
+                Console.WriteLine("Failed to book appointment. Please try again.");
+            }
         }
-        else
+        catch (Exception ex)
         {
-            Console.WriteLine("Failed to book appointment. Please Try Again.");
+            Console.WriteLine($"Error booking appointment: {ex.Message}");
         }
-        Console.ReadKey();
+    Console.ReadKey();
     }
-    // Example of Ovrriding method from base class
     private void AssignDoctor()
     {
         Console.WriteLine("You are not registered with any doctor! Please choose which doctor you would like to register with");
@@ -150,34 +157,72 @@ public class Patient : User
         int index = 1;
         foreach (Doctor d in doctors)
         {
-            Console.Write($"{index}.{d}"); 
+            Console.Write($"{index}.{d}");
             index++;
         }
         Console.WriteLine("Please choose a doctor:");
         Console.ReadLine();
 
         //Assign doctor to patient
-        int choice = Convert.ToInt32(Console.ReadLine());
+        int choice = -1;
+        bool valid = false;
 
-
-        Doctor selectedDoctor = doctors[choice - 1];
-        this.AssignedDoctor = selectedDoctor.UserID;
-
-        // Update the user's assigned doctor in the Users.txt file
-        string[] lines = GetUsersFile();
-        for (int i = 0; i < lines.Length; i++)
+        while (!valid)
         {
-            var parts = lines[i].Split('\t');
-            if (parts[0] == "p" && Convert.ToInt32(parts[1]) == this.patientId)
+            try
             {
-                parts[6] = AssignedDoctor.ToString(); // update doctor
-                lines[i] = string.Join("\t", parts);
-                break;
+                choice = Convert.ToInt32(Console.ReadLine());
+                if (choice < 1 || choice > doctors.Length)
+                {
+                    throw new ArgumentOutOfRangeException();
+                }
+                valid = true;
+            }
+            catch (FormatException)
+            {
+                Console.WriteLine("Invalid input. Please enter a number:");
+            }
+            catch (ArgumentOutOfRangeException)
+            {
+                Console.WriteLine("Invalid choice. Please choose a valid doctor number:");
+            }
+            catch (Exception ex)
+            {
+                Console.WriteLine($"An error occurred: {ex.Message}. Please try again:");
             }
         }
-        File.WriteAllLines("Users.txt", lines);
+        Doctor selectedDoctor = doctors[choice - 1];
+        this.AssignedDoctor = selectedDoctor.UserID;
+        UpdateAssignedDoctor();
     }
-    // Example of overriding ToString method from base class
+    private void UpdateAssignedDoctor()
+    {
+        try
+        {
+            // Update the user's assigned doctor in the Users.txt file
+            string[] lines = GetUsersFile();
+            for (int i = 0; i < lines.Length; i++)
+            {
+                var parts = lines[i].Split('\t');
+                if (parts[0] == "p" && Convert.ToInt32(parts[1]) == this.patientId)
+                {
+                    parts[6] = AssignedDoctor.ToString();
+                    lines[i] = string.Join("\t", parts);
+                    break;
+                }
+            }
+            File.WriteAllLines("Users.txt", lines);
+        }
+        catch (IOException ex)
+        {
+            Console.WriteLine($"File error: {ex.Message}");
+        }
+        catch (Exception ex)
+        {
+            Console.WriteLine($"An error occurred: {ex.Message}");
+        }
+
+    }
     private void ViewDoctor()
     {
         if (AssignedDoctor == 0)
@@ -201,5 +246,4 @@ public class Patient : User
             }
         }
     }
-    //Prompt whenever patient accesses doctor pages and no doctor assigned
 }

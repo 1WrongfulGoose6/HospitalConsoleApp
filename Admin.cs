@@ -109,37 +109,105 @@ public class Admin : User
     }
     private void AddPatient()
     {
-        string firstName = AddPrompt("First Name");
-        string lastName = AddPrompt("Last Name");
-        string email = AddPrompt("Email");
-        string phone = AddPrompt("Phone");
-        string streetNumber = AddPrompt("Street Number");
-        string street = AddPrompt("Street");
-        string city = AddPrompt("City");
-        string state = AddPrompt("State");
+        string firstName, lastName, email, phone, streetNumber, street, city, state;
+
+        while (true)
+        {
+            Console.Clear(); // reset screen
+            Header.Show("Add User");
+            Header.ResizeWindow(50, 25);
+
+            firstName = AddPrompt("First Name");
+            lastName = AddPrompt("Last Name");
+            email = AddPrompt("Email");
+            phone = AddPrompt("Phone");
+            streetNumber = AddPrompt("Street Number");
+            street = AddPrompt("Street");
+            city = AddPrompt("City");
+            state = AddPrompt("State");
+
+            if (string.IsNullOrWhiteSpace(firstName) ||
+                string.IsNullOrWhiteSpace(lastName) ||
+                string.IsNullOrWhiteSpace(email) ||
+                string.IsNullOrWhiteSpace(phone) ||
+                string.IsNullOrWhiteSpace(streetNumber) ||
+                string.IsNullOrWhiteSpace(street) ||
+                string.IsNullOrWhiteSpace(city) ||
+                string.IsNullOrWhiteSpace(state))
+            {
+                Console.WriteLine("\nPlease enter valid data for all fields.");
+                Console.WriteLine("Press any key to try again.");
+                Console.ReadKey();
+                continue;
+            }
+
+            break;
+        }
 
         string address = $"{streetNumber} {street}, {city}, {state}";
         string fullName = $"{firstName} {lastName}";
         int newId = CreateUserID();
         string line = $"p\t{newId}\t{fullName}\t{address}\t{email}\t{phone}\t0";
-        File.AppendAllText("Users.txt", Environment.NewLine + line);
+
+        // Check if file is empty
+        bool fileIsEmpty = new FileInfo("Users.txt").Length == 0;
+        File.AppendAllText("Users.txt", line + (fileIsEmpty ? "" : Environment.NewLine));
+
+        // Add to credentials with default password
+        string defaultPassword = "password";
+        string credentialsLine = $"{newId}\t{defaultPassword}\tp";
+        File.AppendAllText("Credentials.txt", credentialsLine + (fileIsEmpty ? "" : Environment.NewLine));
     }
     private void AddDoctor()
     {
-        string firstName = AddPrompt("First Name");
-        string lastName = AddPrompt("Last Name");
-        string email = AddPrompt("Email");
-        string phone = AddPrompt("Phone");
-        string streetNumber = AddPrompt("Street Number");
-        string street = AddPrompt("Street");
-        string city = AddPrompt("City");
-        string state = AddPrompt("State");
 
+        string firstName, lastName, email, phone, streetNumber, street, city, state;
+
+        while (true)
+        {
+            Console.Clear(); // reset screen
+            Header.Show("Add User");
+            Header.ResizeWindow(50, 25);
+
+            firstName = AddPrompt("First Name");
+            lastName = AddPrompt("Last Name");
+            email = AddPrompt("Email");
+            phone = AddPrompt("Phone");
+            streetNumber = AddPrompt("Street Number");
+            street = AddPrompt("Street");
+            city = AddPrompt("City");
+            state = AddPrompt("State");
+
+            if (string.IsNullOrWhiteSpace(firstName) ||
+                string.IsNullOrWhiteSpace(lastName) ||
+                string.IsNullOrWhiteSpace(email) ||
+                string.IsNullOrWhiteSpace(phone) ||
+                string.IsNullOrWhiteSpace(streetNumber) ||
+                string.IsNullOrWhiteSpace(street) ||
+                string.IsNullOrWhiteSpace(city) ||
+                string.IsNullOrWhiteSpace(state))
+            {
+                Console.WriteLine("\nPlease enter valid data for all fields.");
+                Console.WriteLine("Press any key to try again.");
+                Console.ReadKey();
+                continue; 
+            }
+
+            break;
+        }
         string address = $"{streetNumber} {street}, {city}, {state}";
         string fullName = $"{firstName} {lastName}";
-        int newId = CreateUserID();
+        int newId = GenerateNewId();
         string line = $"d\t{newId}\t{fullName}\t{address}\t{email}\t{phone}";
-        File.AppendAllText("Users.txt", Environment.NewLine + line);
+
+        // Check if file is empty
+        bool fileIsEmpty = new FileInfo("Users.txt").Length == 0;
+        File.AppendAllText("Users.txt", line + (fileIsEmpty ? "" : Environment.NewLine));
+
+        // Add to credentials with default password
+        string defaultPassword = "password";
+        string credentialsLine = $"{newId}\t{defaultPassword}\td";
+        File.AppendAllText("Credentials.txt", credentialsLine + (fileIsEmpty ? "" : Environment.NewLine));
     }
     private string AddPrompt(string fieldName)
     {
@@ -174,6 +242,37 @@ public class Admin : User
         foreach (Doctor d in doctors)
         {
             Console.WriteLine(d);
+        }
+    }
+    public static int GenerateNewId(string usersFile = "users.txt")
+    {
+        int MinId = 10000000; // First valid 8-digit ID
+        try
+        {
+            var lines = File.ReadAllLines(usersFile);
+
+            var ids = lines
+                .Select(line =>
+                {
+                    var parts = line.Split('\t');
+                    if (parts.Length >= 2 && int.TryParse(parts[1], out int id))
+                        return id;
+                    return -1; // invalid ID format
+                })
+                .Where(id => id >= MinId) // only count valid IDs
+                .ToList();
+
+            if (!ids.Any())
+            {
+                return MinId; // first ID
+            }
+
+            return ids.Max() + 1; // next unique ID
+        }
+        catch (Exception ex)
+        {
+            Console.WriteLine($"Error generating user ID: {ex.Message}");
+            return MinId; // fallback
         }
     }
 }

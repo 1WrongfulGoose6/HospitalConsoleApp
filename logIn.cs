@@ -7,26 +7,33 @@ public class Login
     public bool IsAuthenticated { get; internal set; } // Property to track authentication status
     public int id { get; internal set; } // Property to store user ID
     public char role { get; internal set; } // Property to store user role
+    private readonly string[] requiredFiles = { "Credentials.txt", "Users.txt", "Appointments.txt" };
+
+    public Login()
+    {
+        IsAuthenticated = false;
+        id = -1;
+        role = ' ';
+    }
 
     // Main authentication method
     public void Authenticate()
     {
-        IsAuthenticated = false; // Reset authentication status at the start
+        IsAuthenticated = false;
         string id = "";
         string password = "";
 
-        int currentField = 0; // 0 = ID, 1 = Password
+        int currentField = 0;
         bool done = false;
-
 
         bool onUser = true; // true = ID field, false = Password field
 
         // first loop checks fields, second loop validates credentials
+        CheckFilesExist();
         while (!done)
             {
-
-                Header.Show("Login");
-                Header.ResizeWindow(50, 10);
+            Header.Show("Login");
+            Header.ResizeWindow(50, 10);
 
             // ID field
             Console.Write("ID: ");
@@ -76,6 +83,7 @@ public class Login
         {
            IsAuthenticated = true;
             Console.WriteLine("\nValid Credentials. Press Any Key to continue.");
+            Console.ReadKey();
             return;
         }
         Console.WriteLine("\nInvalid Credentials. Press Any Key to try Again.");
@@ -144,5 +152,44 @@ public class Login
         }
         return sb.ToString();
     }
-
+    private void CheckFilesExist()
+    {
+        Header.Show("Login");
+        Header.ResizeWindow(50, 10);
+        foreach (var file in requiredFiles)
+        {
+            try
+            {
+                if (!File.Exists(file))
+                {
+                    using (var writer = new StreamWriter(File.Create(file)))
+                    {
+                        if (file.Equals("credentials.txt", StringComparison.OrdinalIgnoreCase))
+                        {
+                            writer.WriteLine("10000000\tpassword\ta");
+                        }
+                        else if (file.Equals("users.txt", StringComparison.OrdinalIgnoreCase))
+                        {
+                            writer.WriteLine("a\t10000000\tSam Admin\tNull\tNull\t0000000000");
+                        }
+                        Console.WriteLine($"{file} was missing, created with default admin. Press any key to continue\n");
+                        Console.ReadKey();
+                    }
+                }
+            }
+            catch (UnauthorizedAccessException)
+            {
+                Console.WriteLine($"Error: You do not have permission to create or access {file}.");
+            }
+            catch (IOException ex)
+            {
+                Console.WriteLine($"I/O Error while checking or creating {file}: {ex.Message}");
+            }
+            catch (Exception ex)
+            {
+                Console.WriteLine($"Unexpected error with {file}: {ex.Message}");
+            }
+            Console.Clear();
+        }
+    }
 }

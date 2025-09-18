@@ -53,9 +53,18 @@ public abstract class User
         foreach (var line in File.ReadLines("users.txt"))
         {
             var parts = line.Split('\t');
-            if (Convert.ToInt32(parts[1]) == doctorID)
+            try
             {
-                return line;
+                if (Convert.ToInt32(parts[1]) == doctorID)
+                    return line;
+            }
+            catch (FormatException ex)
+            {
+                Console.WriteLine($"Bad line format in Users.txt: {line}, error message:{ex.Message}");
+            }
+            catch (IndexOutOfRangeException ex)
+            {
+                Console.WriteLine($"Corrupt entry in Users.txt: {line}, error message:{ex.Message}");
             }
         }
         throw new InvalidOperationException("Doctor Not Found");
@@ -95,7 +104,14 @@ public abstract class User
             var parts = line.Split('\t');
             if (Convert.ToChar(parts[0]) == 'd')
             {
-                docs[index++] = new Doctor(parts);
+                try
+                {
+                    docs[index++] = new Doctor(parts);
+                }
+                catch (Exception ex)
+                {
+                    Console.WriteLine($"Failed to create Doctor from line: {line}. Error: {ex.Message}");
+                }
             }
         }
         return docs;
@@ -138,7 +154,7 @@ public abstract class User
                 return Convert.ToString(parts[2]);
             }
         }
-        throw new InvalidOperationException("User Not Found");
+        return"No Doctor Assigned";
     }
     public void SearchPatient(int patientID)
     {

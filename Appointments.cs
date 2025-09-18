@@ -13,76 +13,124 @@ public class Appointments
 
 	public bool Book(int DoctorID, string Description)
 	{
-
-		using (StreamWriter writer = new StreamWriter("appointments.txt", append: true))
-		{
-			try
-			{
-				writer.WriteLine($"{UserID}\t{DoctorID}\t{Description}");
-				return true;
-			}
-			catch (Exception ex)
-			{
-				Console.WriteLine($"An error occurred: {ex.Message}");
-				return false;
-			}
-		}
-	}
+        try
+        {
+            using (StreamWriter writer = new StreamWriter("appointments.txt", append: true))
+            {
+                writer.WriteLine($"{UserID}\t{DoctorID}\t{Description}");
+            }
+            return true;
+        }
+        catch (IOException ioEx)
+        {
+            Console.WriteLine($" File error while booking: {ioEx.Message}");
+            return false;
+        }
+        catch (Exception ex)
+        {
+            Console.WriteLine($"Unexpected error booking appointment: {ex.Message}");
+            return false;
+        }
+    }
 	public void List(string PatientName, string DoctorName)
 	{
-		Header.Show("My Appointments");
-		Console.WriteLine("\t");
-		Header.Appointment();
-		var lines = GetAppointmentsFile();
-		foreach (var line in lines)
-		{
-			var parts = line.Split('\t');
-			if (Convert.ToInt32(parts[0]) == UserID)
-			{
-				Header.Appointment(DoctorName, PatientName, parts[2]);
-			}
-		}
-	}
+        try
+        {
+            Header.Show("My Appointments");
+            Console.WriteLine("\t");
+            Header.Appointment();
+
+            var lines = GetAppointmentsFile();
+            foreach (var line in lines)
+            {
+                var parts = line.Split('\t');
+                if (parts.Length < 3) continue; // skip malformed rows
+
+                if (int.TryParse(parts[0], out int patientId) && patientId == UserID)
+                {
+                    Header.Appointment(DoctorName, PatientName, parts[2]);
+                }
+            }
+        }
+        catch (Exception ex)
+        {
+            Console.WriteLine($"Error listing appointments: {ex.Message}");
+        }
+    }
 	public void ListForDoctor(string doctorName)
 	{
-		Header.Show("My Appointments");
-		Console.WriteLine("\t");
-		Header.Appointment();
+        try
+        {
+            Header.Show("My Appointments");
+            Console.WriteLine("\t");
+            Header.Appointment();
 
-		var lines = GetAppointmentsFile();
-		foreach (var line in lines)
-		{
-			var parts = line.Split('\t');
-			int patientId = Convert.ToInt32(parts[0]);
-			int doctorId = Convert.ToInt32(parts[1]);
-			string description = parts[2];
+            var lines = GetAppointmentsFile();
+            foreach (var line in lines)
+            {
+                var parts = line.Split('\t');
+                if (parts.Length < 3) continue;
 
-			if (doctorId == UserID)
-			{
-				string patientName = GetPatientNameById(patientId);
-				Header.Appointment(doctorName, patientName, description);
-			}
-		}
-	}
+                if (int.TryParse(parts[0], out int patientId) &&
+                    int.TryParse(parts[1], out int doctorId) &&
+                    doctorId == UserID)
+                {
+                    string description = parts[2];
+                    string patientName = GetPatientNameById(patientId);
+                    Header.Appointment(doctorName, patientName, description);
+                }
+            }
+        }
+        catch (Exception ex)
+        {
+            Console.WriteLine($"⚠ Error listing doctor appointments: {ex.Message}");
+        }
+    }
     public void ViewbyDoctor()
 	{
-		var lines = GetAppointmentsFile();
-		foreach (var line in lines)
-		{
-			var parts = line.Split('\t');
-			Console.WriteLine($"PatientID: {parts[0]}, DoctorID: {parts[1]}, Description: {parts[2]}");
-		}
-	}
+        try
+        {
+            var lines = GetAppointmentsFile();
+            foreach (var line in lines)
+            {
+                var parts = line.Split('\t');
+                if (parts.Length < 3) continue;
+
+                Console.WriteLine($"PatientID: {parts[0]}, DoctorID: {parts[1]}, Description: {parts[2]}");
+            }
+        }
+        catch (Exception ex)
+        {
+            Console.WriteLine($"Unexpected error viewing by doctor: {ex.Message}");
+        }
+    }
     private string GetPatientNameById(int patientId)
     {
-        string[] lines = File.ReadAllLines("Users.txt");
-        foreach (var line in lines)
+        try
         {
-            var parts = line.Split('\t');
-            if (parts[0] == "p" && Convert.ToInt32(parts[1]) == patientId)
+            string[] lines = File.ReadAllLines("Users.txt");
+            foreach (var line in lines)
             {
-                return parts[2];
+                var parts = line.Split('\t');
+                if (parts.Length < 3) continue;
+
+                if (parts[0] == "p" && int.TryParse(parts[1], out int id) && id == patientId)
+                {
+                    return parts[2];
+                }
             }
+        }
+        catch (FileNotFoundException)
+        {
+            Console.WriteLine("Users file not found.");
+        }
+        catch (IOException ioEx)
+        {
+            Console.WriteLine($"File error while getting patient name: {ioEx.Message}");
+        }
+        catch (Exception ex)
+        {
+            Console.WriteLine($"Unexpected error getting patient name: {ex.Message}");
         }
         return "Unknown Patient";
     }
@@ -94,15 +142,19 @@ public class Appointments
 		{
 			lines = File.ReadAllLines("appointments.txt");
 		}
-		catch (FileNotFoundException)
+		catch (FileNotFoundException ex)
 		{
-			Console.WriteLine("Appointments file not found.");
+			Console.WriteLine($"Appointments file not found: {ex.Message}");
 		}
 		catch (IOException ex)
 		{
 			Console.WriteLine($"File error: {ex.Message}");
 		}
-		return lines;
+        catch(Exception ex)
+        {
+            Console.WriteLine($"Unexpected error reading appointments: {ex.Message}");
+        }
+        return lines;
 
 
 

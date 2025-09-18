@@ -37,7 +37,8 @@ public class Doctor:User
             Console.WriteLine("7. Exit");
             Console.Write("Select an option: ");
             Console.ReadLine();
-            char choice = Convert.ToChar(Console.Read());
+            Console.Write("Select an option: ");
+            var choice = Convert.ToChar(Console.Read());
             switch (choice)
             {
                 case '1':
@@ -103,8 +104,10 @@ public class Doctor:User
                     return;
                 default:
                     Console.WriteLine("Invalid choice. Please try again.");
+                    Console.ReadKey();
                     break;
             }
+            GC.Collect(); //garbage collection
         }
     }
     public override void ViewDetails()
@@ -116,28 +119,59 @@ public class Doctor:User
     {
         return $"{FName,-20} | {Email,-30} | {PhoneNumber,-15} | {Address,-30}";
     }
-    // Private methods
     private void GetPatientAppointments(int patientID)
     {
-        Appointments a = new Appointments(patientID);
-        a.List(GetFullName(patientID), FName);
+        try
+        {
+            Appointments a = new Appointments(patientID);
+            a.List(GetFullName(patientID), FName);
+        }
+        catch (Exception ex)
+        {
+            Console.WriteLine($"Error getting patient appointments: {ex.Message}");
+        }
     }
     private void ViewMyPatients()
     {
-        string[] lines = GetUsersFile();
-        foreach (var line in lines)
+        try
         {
-            var parts = line.Split('\t');
-            if (Convert.ToChar(parts[0]) == 'p' && Convert.ToInt32(parts[6]) == DoctorId)
+            string[] lines = GetUsersFile();
+            foreach (var line in lines)
             {
-                Patient p = new Patient(parts);
-                Console.WriteLine(p);
+                var parts = line.Split('\t');
+                if (Convert.ToChar(parts[0]) == 'p' && Convert.ToInt32(parts[6]) == DoctorId)
+                {
+                    try
+                    {
+                        Patient p = new Patient(parts);
+                        Console.WriteLine(p);
+                    }
+                    catch (Exception ex)
+                    {
+                        Console.WriteLine($"Error loading patient: {ex.Message}");
+                    }
+                }
             }
+        }
+        catch (IOException ioEx)
+        {
+            Console.WriteLine($"File error while retrieving patients: {ioEx.Message}");
+        }
+        catch (Exception ex)
+        {
+            Console.WriteLine($"Unexpected error: {ex.Message}");
         }
     }
     private void GetAppointments()
     {
-        appointments.ListForDoctor(FName);
+        try
+        {
+            appointments.ListForDoctor(FName);
+        }
+        catch (Exception ex)
+        {
+            Console.WriteLine($"Error listing appointments: {ex.Message}");
+        }
 
     }
 
