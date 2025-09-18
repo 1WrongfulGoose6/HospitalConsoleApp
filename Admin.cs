@@ -83,20 +83,18 @@ public class Admin : User
                     Console.ReadKey();
                     break;
                 case '5':
-                    Console.WriteLine("adding doctor");
-                    break;
-                case '6':
                     Header.Show("Add Doctor");
                     Header.ResizeWindow(50, 25);
-                    Console.WriteLine("\n");
-                    Console.WriteLine($"First Name:\n");
-                    Console.WriteLine($"Last Name:\n");
-                    Console.WriteLine($"Email:\n");
-                    Console.WriteLine($"Phone:\n");
-                    Console.WriteLine($"Street Number:\n");
-                    Console.WriteLine($"Street:\n");
-                    Console.WriteLine($"City:\n");
-                    Console.WriteLine($"State:\n");
+                    Console.ReadLine(); // flush leftover newline
+                    AddDoctor();
+                    Console.ReadKey();
+                    break;
+                case '6':
+                    Header.Show("Add Patient");
+                    Header.ResizeWindow(50, 25);
+                    Console.ReadLine(); // flush leftover newline
+                    AddPatient();
+                    Console.ReadKey();
                     break;
                 case '7':
                     programLoop = false; // Exit to login
@@ -111,6 +109,61 @@ public class Admin : User
 		}
     }
 
+    private void AddPatient()
+    {
+        string firstName = AddPrompt("First Name");
+        string lastName = AddPrompt("Last Name");
+        string email = AddPrompt("Email");
+        string phone = AddPrompt("Phone");
+        string streetNumber = AddPrompt("Street Number");
+        string street = AddPrompt("Street");
+        string city = AddPrompt("City");
+        string state = AddPrompt("State");
+
+        string address = $"{streetNumber} {street}, {city}, {state}";
+        string fullName = $"{firstName} {lastName}";
+        int newId = GetNextUserId();
+        string line = $"p\t{newId}\t{fullName}\t{address}\t{email}\t{phone}\t0";
+        File.AppendAllText("Users.txt", Environment.NewLine + line);
+    }
+
+    private void AddDoctor()
+    {
+        string firstName = AddPrompt("First Name");
+        string lastName = AddPrompt("Last Name");
+        string email = AddPrompt("Email");
+        string phone = AddPrompt("Phone");
+        string streetNumber = AddPrompt("Street Number");
+        string street = AddPrompt("Street");
+        string city = AddPrompt("City");
+        string state = AddPrompt("State");
+
+        string address = $"{streetNumber} {street}, {city}, {state}";
+        string fullName = $"{firstName} {lastName}";
+        int newId = GetNextUserId();
+        string line = $"d\t{newId}\t{fullName}\t{address}\t{email}\t{phone}";
+        File.AppendAllText("Users.txt", Environment.NewLine + line);
+    }
+
+    private string AddPrompt(string fieldName)
+    {
+        Console.Write($"{fieldName}: ");
+        return Console.ReadLine();
+    }
+    private int GetNextUserId()
+    {
+        string[] lines = File.ReadAllLines("Users.txt");
+        int maxId = 0;
+
+        foreach (var line in lines)
+        {
+            var parts = line.Split('\t');
+            int id = Convert.ToInt32(parts[1]);
+            if (id > maxId) maxId = id;
+        }
+
+        return maxId + 1;
+    }
     private void PrintAllPatients()
     {
         Patient[] patients = GetAllPatients();
